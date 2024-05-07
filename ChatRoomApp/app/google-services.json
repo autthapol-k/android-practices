@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "110817432960",
+    "project_id": "chatroomapp-udemy-course",
+    "storage_bucket": "chatroomapp-udemy-course.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110817432960:android:18b4bda256f96289395d65",
+        "android_client_info": {
+          "package_name": "com.autthapol.chatroomapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcHFGZ4k5p6eGpoEsJrXj1RGvIfy2vkZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
