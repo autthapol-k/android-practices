@@ -1,5 +1,6 @@
-package com.autthapol.composepaging3caching.presentation
+package com.autthapol.composepaging3caching.presentation.coin_list
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,14 +18,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.autthapol.composepaging3caching.domain.Coin
+import com.autthapol.composepaging3caching.domain.model.Coin
 import com.autthapol.composepaging3caching.ui.theme.ComposePaging3CachingTheme
 
 @Composable
 fun CoinItem(
-    modifier: Modifier = Modifier, coin: Coin
+    modifier: Modifier = Modifier,
+    coin: Coin,
+    onItemClicked: (Coin) -> Unit
 ) {
-    Card(modifier = modifier, elevation = CardDefaults.cardElevation(4.dp)) {
+    Card(
+        modifier = modifier.clickable {
+            onItemClicked(coin)
+        },
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -79,7 +87,8 @@ private fun CoinItemPreview() {
                 isNew = false,
                 isActive = true,
                 type = "coin"
-            )
+            ),
+            onItemClicked = {}
         )
     }
 }

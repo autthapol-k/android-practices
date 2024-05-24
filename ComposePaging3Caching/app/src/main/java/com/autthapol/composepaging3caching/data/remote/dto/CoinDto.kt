@@ -1,4 +1,4 @@
-package com.autthapol.composepaging3caching.data.remote
+package com.autthapol.composepaging3caching.data.remote.dto
 
 import com.squareup.moshi.Json
 
@@ -12,4 +12,6 @@ data class CoinDto(
     @field:Json(name = "is_active")
     val isActive: Boolean,
     val type: String,
+    val description: String? = null,
+    val logo: String? = null
 )

@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import com.autthapol.composepaging3caching.data.local.entity.CoinEntity
 
 @Dao
 interface CoinDao {

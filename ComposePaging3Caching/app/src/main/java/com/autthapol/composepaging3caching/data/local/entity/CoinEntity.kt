@@ -1,4 +1,4 @@
-package com.autthapol.composepaging3caching.data.local
+package com.autthapol.composepaging3caching.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

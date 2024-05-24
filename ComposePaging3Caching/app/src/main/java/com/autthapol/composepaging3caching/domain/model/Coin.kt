@@ -1,4 +1,4 @@
-package com.autthapol.composepaging3caching.domain
+package com.autthapol.composepaging3caching.domain.model
 
 data class Coin(
     val id: String,
@@ -8,4 +8,6 @@ data class Coin(
     val isNew: Boolean,
     val isActive: Boolean,
     val type: String,
+    val description: String? = null,
+    val logo: String? = null
 )

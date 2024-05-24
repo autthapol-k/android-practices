@@ -1,4 +1,4 @@
-package com.autthapol.composepaging3caching.presentation
+package com.autthapol.composepaging3caching.presentation.coin_list
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -16,12 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import com.autthapol.composepaging3caching.domain.Coin
+import com.autthapol.composepaging3caching.domain.model.Coin
 
 @Composable
 fun CoinListScreen(
     modifier: Modifier = Modifier,
-    coins: LazyPagingItems<Coin>
+    coins: LazyPagingItems<Coin>,
+    onItemClicked: (Coin) -> Unit
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = coins.loadState) {
@@ -51,7 +52,7 @@ fun CoinListScreen(
                     it.id
                 }) { index ->
                     coins[index]?.let {
-                        CoinItem(coin = it)
+                        CoinItem(coin = it, onItemClicked = onItemClicked)
                     }
                 }
                 item {

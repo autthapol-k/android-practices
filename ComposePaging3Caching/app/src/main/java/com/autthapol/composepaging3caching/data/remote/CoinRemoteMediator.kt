@@ -6,7 +6,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.autthapol.composepaging3caching.core.mappers.toEntity
-import com.autthapol.composepaging3caching.data.local.CoinEntity
+import com.autthapol.composepaging3caching.data.local.entity.CoinEntity
 import com.autthapol.composepaging3caching.data.local.CryptoDatabase
 import retrofit2.HttpException
 import java.io.IOException

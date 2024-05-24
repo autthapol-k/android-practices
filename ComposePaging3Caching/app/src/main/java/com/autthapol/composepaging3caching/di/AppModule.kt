@@ -5,10 +5,13 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.room.Room
-import com.autthapol.composepaging3caching.data.local.CoinEntity
+import com.autthapol.composepaging3caching.data.local.entity.CoinEntity
 import com.autthapol.composepaging3caching.data.local.CryptoDatabase
 import com.autthapol.composepaging3caching.data.remote.CoinRemoteMediator
 import com.autthapol.composepaging3caching.data.remote.CryptoApi
+import com.autthapol.composepaging3caching.data.repository.CryptoRepositoryImpl
+import com.autthapol.composepaging3caching.domain.repository.CryptoRepository
+import com.autthapol.composepaging3caching.domain.use_case.GetCoinUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,5 +63,21 @@ object AppModule {
                 cryptoDatabase.coinDao.pagingSource()
             }
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideCryptoRepository(
+        cryptoApi: CryptoApi
+    ): CryptoRepository {
+        return CryptoRepositoryImpl(cryptoApi = cryptoApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCoinUseCase(
+        cryptoRepository: CryptoRepository
+    ): GetCoinUseCase {
+        return GetCoinUseCase(cryptoRepository = cryptoRepository)
     }
 }
