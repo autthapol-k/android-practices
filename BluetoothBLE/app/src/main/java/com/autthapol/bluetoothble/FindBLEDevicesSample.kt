@@ -48,8 +48,8 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.autthapol.bluetoothble.server.GATTServerSampleService.Companion.SERVICE_UUID
 import kotlinx.coroutines.delay
-import java.util.UUID
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -107,7 +107,7 @@ internal fun FindDevicesScreen(
                 // If we find out GATT server sample let's highlight it
                 val serviceUUIDs = scanResult.scanRecord?.serviceUuids.orEmpty()
                 // change UUID, need to match with GATT server service
-                if (serviceUUIDs.contains(ParcelUuid(UUID.randomUUID()))) {
+                if (serviceUUIDs.contains(ParcelUuid(SERVICE_UUID))) {
                     if (!serverDevices.contains(scanResult.device)) {
                         serverDevices.add(scanResult.device)
                     }
