@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.ParcelUuid
@@ -50,6 +51,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.autthapol.bluetoothble.server.GATTServerSampleService.Companion.SERVICE_UUID
 import kotlinx.coroutines.delay
+import java.util.UUID
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -85,39 +87,40 @@ internal fun FindDevicesScreen(
     }
 
     // scan settings
-    val scanSettings: ScanSettings = ScanSettings.Builder()
-        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-        .build()
+    val scanSettings: ScanSettings =
+        ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+            .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+            .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+            .setReportDelay(0L)
+            .build()
 
     // This effect will start scanning for devices when the screen is visible
     // If scanning is stop removing the effect will stop the scanning.
     if (scanning) {
-        BluetoothScanEffect(
-            scanSettings = scanSettings,
-            onScanFailed = {
-                scanning = false
-                Log.w("FindBLEDevicesSample", "Scan failed with error: $it")
-            },
-            onDeviceFound = { scanResult ->
-                if (!devices.contains(scanResult.device)) {
-                    devices.add(scanResult.device)
-                }
+        BluetoothScanEffect(scanSettings = scanSettings, onScanFailed = {
+            scanning = false
+            Log.w("FindBLEDevicesSample", "Scan failed with error: $it")
+        }, onDeviceFound = { scanResult ->
+            if (!devices.contains(scanResult.device)) {
+                devices.add(scanResult.device)
+            }
 
-                // If we find out GATT server sample let's highlight it
-                val serviceUUIDs = scanResult.scanRecord?.serviceUuids.orEmpty()
-                // change UUID, need to match with GATT server service
-                if (serviceUUIDs.contains(ParcelUuid(SERVICE_UUID))) {
-                    if (!serverDevices.contains(scanResult.device)) {
-                        serverDevices.add(scanResult.device)
-                    }
+            // If we find out GATT server sample let's highlight it
+            val serviceUUIDs = scanResult.scanRecord?.serviceUuids.orEmpty()
+            // change UUID, need to match with GATT server service
+            if (serviceUUIDs.contains(ParcelUuid(SERVICE_UUID))) {
+                if (!serverDevices.contains(scanResult.device)) {
+                    serverDevices.add(scanResult.device)
+                    scanning = false
                 }
             }
-        )
+        })
 
         // Stop scanning after a while
         LaunchedEffect(key1 = true) {
-            delay(15000)
+            delay(30000)
             scanning = false
         }
     }
@@ -136,20 +139,18 @@ internal fun FindDevicesScreen(
             if (scanning) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
             } else {
-                IconButton(
-                    onClick = {
-                        devices.clear()
-                        scanning = true
-                    }
-                ) {
+                IconButton(onClick = {
+                    devices.clear()
+                    serverDevices.clear()
+                    scanning = true
+                }) {
                     Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
                 }
             }
         }
 
         LazyColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (devices.isEmpty()) {
                 item {
@@ -171,8 +172,7 @@ internal fun FindDevicesScreen(
                 }
                 items(pairedDevices) {
                     BluetoothDeviceItem(
-                        bluetoothDevice = it,
-                        onConnect = onConnect
+                        bluetoothDevice = it, onConnect = onConnect
                     )
                 }
             }
@@ -199,8 +199,7 @@ internal fun BluetoothDeviceItem(
                 "GATT Server"
             } else {
                 bluetoothDevice.name ?: "N/A"
-            },
-            style = if (isServerDevice) {
+            }, style = if (isServerDevice) {
                 TextStyle(fontWeight = FontWeight.Bold)
             } else {
                 TextStyle(fontWeight = FontWeight.Normal)
@@ -250,7 +249,11 @@ private fun BluetoothScanEffect(
         val observer = LifecycleEventObserver { _, event ->
             // Start scanning once the app is in foreground and stop when in background
             if (event == Lifecycle.Event.ON_START) {
-                bluetoothAdapter.bluetoothLeScanner.startScan(null, scanSettings, leScanCallback)
+                val filters = listOf(
+                    ScanFilter.Builder().setServiceUuid(ParcelUuid(SERVICE_UUID)).build()
+                )
+
+                bluetoothAdapter.bluetoothLeScanner.startScan(filters, scanSettings, leScanCallback)
             } else if (event == Lifecycle.Event.ON_STOP) {
                 bluetoothAdapter.bluetoothLeScanner.stopScan(leScanCallback)
             }

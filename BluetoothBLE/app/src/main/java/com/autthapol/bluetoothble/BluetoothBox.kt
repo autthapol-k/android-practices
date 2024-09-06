@@ -58,8 +58,13 @@ fun BluetoothBox(
         )
     }
 
+    val wifiPermissionSet = setOf(
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.CHANGE_WIFI_STATE,
+    )
+
     PermissionBox(
-        permissions = (bluetoothPermissionSet + locationPermission + extraPermissions).toList(),
+        permissions = (bluetoothPermissionSet + locationPermission + wifiPermissionSet + extraPermissions).toList(),
         contentAlignment = Alignment.Center,
     ) {
         // Check to see if the Bluetooth classic feature is available.
