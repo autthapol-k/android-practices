@@ -68,6 +68,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
+
     implementation("com.google.accompanist:accompanist-permissions:0.28.0")
 
     implementation("com.google.android.gms:play-services-nearby:19.3.0")

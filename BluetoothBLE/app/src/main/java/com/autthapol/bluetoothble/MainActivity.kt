@@ -20,8 +20,8 @@ class MainActivity: ComponentActivity() {
         setContent {
             BluetoothBLETheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    FindBLEDevicesSample(modifier = Modifier.padding(innerPadding))
-                    GATTServerSample(modifier = Modifier.padding(innerPadding))
+                    FindBLEDevicesSample(modifier = Modifier.padding(innerPadding))
+//                    GATTServerSample(modifier = Modifier.padding(innerPadding))
 
 //                    NearbyAdvertiserSample(modifier = Modifier.padding(innerPadding))
 //                    NearbyDiscoverySample(modifier = Modifier.padding(innerPadding))
