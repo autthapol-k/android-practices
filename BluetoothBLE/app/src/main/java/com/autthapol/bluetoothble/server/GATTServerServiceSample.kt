@@ -37,7 +37,9 @@ class GATTServerSampleService: Service() {
     companion object {
 
         // Random UUID for our service known between the client and server to allow communication
-        val SERVICE_UUID: UUID = UUID.fromString("BE12580D-F1AA-7C84-7135-478D536560C8")
+        val SERVICE_UUID: UUID = UUID.fromString("529dde52-4ccc-4ff0-9843-03d3f9d7c021")
+//        val SERVICE_UUID: UUID = UUID.fromString("00001111-0000-1000-8000-00805f9b34fb")
+        val SERVICE_UUID_2: UUID = UUID.fromString("00002222-0000-1000-8000-00805f9b34fb")
 
         // Same as the service but for the characteristic
         val CHARACTERISTIC_UUID: UUID = UUID.fromString("00001111-0000-1000-8000-00805f9b34fb")
@@ -177,7 +179,7 @@ class GATTServerSampleService: Service() {
             .build()
 
         val data = AdvertiseData.Builder()
-            .setIncludeDeviceName(true)
+//            .setIncludeDeviceName(true)
             .addServiceUuid(ParcelUuid(SERVICE_UUID))
             .build()
 

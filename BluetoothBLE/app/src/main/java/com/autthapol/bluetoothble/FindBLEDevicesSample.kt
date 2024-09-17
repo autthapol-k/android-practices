@@ -9,12 +9,14 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.ParcelUuid
+import android.provider.CalendarContract.Colors
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -40,6 +43,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
@@ -49,7 +53,9 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LifecycleEventEffect
 import com.autthapol.bluetoothble.server.GATTServerSampleService.Companion.SERVICE_UUID
+import com.autthapol.bluetoothble.server.GATTServerSampleService.Companion.SERVICE_UUID_2
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -60,6 +66,10 @@ fun FindBLEDevicesSample(modifier: Modifier = Modifier) {
         FindDevicesScreen(modifier = modifier) {
             Log.d("FindBLEDevices", "Name: ${it.name} Address: ${it.address} Type: ${it.type}")
         }
+    }
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        println("on_resume")
     }
 }
 
@@ -99,28 +109,31 @@ internal fun FindDevicesScreen(
     // This effect will start scanning for devices when the screen is visible
     // If scanning is stop removing the effect will stop the scanning.
     if (scanning) {
-        BluetoothScanEffect(scanSettings = scanSettings, onScanFailed = {
-            scanning = false
-            Log.w("FindBLEDevicesSample", "Scan failed with error: $it")
-        }, onDeviceFound = { scanResult ->
-            if (!devices.contains(scanResult.device)) {
-                devices.add(scanResult.device)
-            }
+        BluetoothScanEffect(
+            scanSettings = scanSettings,
+            onScanFailed = {
+                scanning = false
+                Log.w("FindBLEDevicesSample", "Scan failed with error: $it")
+            },
+            onDeviceFound = { scanResult ->
+                if (!devices.contains(scanResult.device)) {
+                    devices.add(scanResult.device)
+                }
 
-            // If we find out GATT server sample let's highlight it
-            val serviceUUIDs = scanResult.scanRecord?.serviceUuids.orEmpty()
-            // change UUID, need to match with GATT server service
-            if (serviceUUIDs.contains(ParcelUuid(SERVICE_UUID))) {
-                if (!serverDevices.contains(scanResult.device)) {
-                    serverDevices.add(scanResult.device)
-                    scanning = false
+                // If we find out GATT server sample let's highlight it
+                // change UUID, need to match with GATT server service
+                if (checkIsMatchedUUID(scanResult)) {
+                    if (!serverDevices.contains(scanResult.device)) {
+                        serverDevices.add(scanResult.device)
+                        scanning = false
+                    }
                 }
             }
-        })
+        )
 
         // Stop scanning after a while
         LaunchedEffect(key1 = true) {
-            delay(30000)
+            delay(10000)
             scanning = false
         }
     }
@@ -135,7 +148,7 @@ internal fun FindDevicesScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Available devices", style = MaterialTheme.typography.titleSmall)
+            Text(text = "Available Devices", style = MaterialTheme.typography.titleSmall)
             if (scanning) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
             } else {
@@ -168,7 +181,8 @@ internal fun FindDevicesScreen(
             // paired devices list
             if (pairedDevices.isNotEmpty()) {
                 item {
-                    Text(text = "Saves devices", style = MaterialTheme.typography.titleSmall)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "Saves Devices", style = MaterialTheme.typography.titleSmall)
                 }
                 items(pairedDevices) {
                     BluetoothDeviceItem(
@@ -196,7 +210,7 @@ internal fun BluetoothDeviceItem(
     ) {
         Text(
             text = if (isServerDevice) {
-                "GATT Server"
+                bluetoothDevice.name
             } else {
                 bluetoothDevice.name ?: "N/A"
             }, style = if (isServerDevice) {
@@ -206,13 +220,31 @@ internal fun BluetoothDeviceItem(
             }
         )
         Text(text = bluetoothDevice.address)
-        val state = when (bluetoothDevice.bondState) {
-            BluetoothDevice.BOND_BONDED -> "Paired"
-            BluetoothDevice.BOND_BONDING -> "Pairing"
-            else -> "None"
+        if (isServerDevice) {
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                tint = Color.Green,
+                contentDescription = null
+            )
         }
-        Text(text = state)
+//        val state = when (bluetoothDevice.bondState) {
+//            BluetoothDevice.BOND_BONDED -> "Paired"
+//            BluetoothDevice.BOND_BONDING -> "Pairing"
+//            else -> "None"
+//        }
+//        Text(text = state)
     }
+}
+
+private fun checkIsMatchedUUID(scanResult: ScanResult): Boolean {
+    val serviceUUIDs = scanResult.scanRecord?.serviceUuids.orEmpty()
+    val uuids = listOf(ParcelUuid(SERVICE_UUID), ParcelUuid(SERVICE_UUID_2))
+    uuids.forEach {
+        if (serviceUUIDs.contains(it)) {
+            return true
+        }
+    }
+    return false
 }
 
 @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
@@ -250,7 +282,12 @@ private fun BluetoothScanEffect(
             // Start scanning once the app is in foreground and stop when in background
             if (event == Lifecycle.Event.ON_START) {
                 val filters = listOf(
-                    ScanFilter.Builder().setServiceUuid(ParcelUuid(SERVICE_UUID)).build()
+                    ScanFilter.Builder()
+                        .setServiceUuid(ParcelUuid(SERVICE_UUID))
+                        .build(),
+                    ScanFilter.Builder()
+                        .setServiceUuid(ParcelUuid(SERVICE_UUID_2))
+                        .build()
                 )
 
                 bluetoothAdapter.bluetoothLeScanner.startScan(filters, scanSettings, leScanCallback)
